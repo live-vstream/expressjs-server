@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var ObjectId = Schema.ObjectId;
 var bcrypt = require('bcrypt');
  
 // Thanks to http://blog.matoski.com/articles/jwt-express-node-mongoose/
@@ -7,15 +8,29 @@ var bcrypt = require('bcrypt');
 // set up a mongoose model
 // TODO: add more fields that may be required
 var UserSchema = new Schema({
-  name: {
+  profile: {
+    first_name: String,
+    last_name: String,
+    city: String,
+    phone: String
+  },
+  username: {
         type: String,
         unique: true,
         required: true
-    },
+  },
   password: {
         type: String,
         required: true
-    }
+  },
+  utype: { // utype represents : broadcaster or streamer
+    type: String,
+    required: true
+  },
+  stream_history: [{ // a history of streams that the streamer has viewed so far
+    stream: ObjectId,
+    viewed_at: Date
+  }]
 });
 
 /*

@@ -16,13 +16,16 @@ userRouter.post('/', (request: Request, response: Response) => {
 
 // create a new user account (POST http://localhost/api/user/signup)
 userRouter.post('/signup', function(req, res) {
-  if (!req.body.name || !req.body.password) {
+  console.log(req.body);
+  if (!req.body.username || !req.body.password || !req.body.profile) {
     res.json({success: false, msg: 'Please pass name and password.'});
   } else {
 
     var newUser = new User({
-      name: req.body.name,
-      password: req.body.password
+      username: req.body.username,
+      password: req.body.password,
+      profile: req.body.profile,
+      utype: req.body.utype
     });
     // save the user
     newUser.save(function(err) {
@@ -38,7 +41,7 @@ userRouter.post('/signup', function(req, res) {
 // route to authenticate a user (POST http://localhost:8080/api/user/authenticate)
 userRouter.post('/authenticate', function(req: Request, res: Response) {
   User.findOne({
-    name: req.body.name
+    username: req.body.username
   }, function(err, user) {
     if (err) throw err;
  
@@ -49,7 +52,7 @@ userRouter.post('/authenticate', function(req: Request, res: Response) {
       user.comparePassword(req.body.password, function (err, isMatch) {
         if (isMatch && !err) {
           // if user is found and password is right create a token
-          var token = jwt.encode(user, secret);
+          var token = jwt.encode(user.username, secret);
           // return the information including token as JSON
           res.json({success: true, token: 'JWT ' + token});
         } else {
@@ -68,7 +71,7 @@ userRouter.get('/profile', passport.authenticate('jwt',
 	  if (token) {
 	    var decoded = jwt.decode(token, secret);
 	    User.findOne({
-	      name: decoded.name
+	      username: decoded.username
 	    }, function(err, user) {
 	        if (err) throw err;
 	 
@@ -77,7 +80,7 @@ userRouter.get('/profile', passport.authenticate('jwt',
 	          	msg: 'Authentication failed. User not found.'});
 	        } else {
 	          res.json({success: true, 
-	          	msg: 'Welcome to the profile page ' + user.name + '!'});
+	          	msg: 'Welcome to the profile page ' + user.username + '!'});
 	        }
 	    });
 	  } else {
